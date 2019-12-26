@@ -6,6 +6,7 @@ public class EnemyProjectTile : MonoBehaviour
 {
     [SerializeField] float destroyTime;
     public StaticDamage parent;
+    public GameObject target;
     private float timer;
 
     void Start()
@@ -35,14 +36,22 @@ public class EnemyProjectTile : MonoBehaviour
         {
             if (parent.team != collision.gameObject.GetComponent<Enemy>().team)
             {
-                parent.isTileSpanwed = false;
-                Destroy(this.gameObject, 0.1f);
+                target.GetComponent<BarbarianAgent>().Punish(-1f);
+                DestroyPlus();
             }
         }
         else if (collision.CompareTag("Obstacle"))
         {
-            parent.isTileSpanwed = false;
-            Destroy(this.gameObject, 0.1f);
+            target.GetComponent<BarbarianAgent>().Reward(1f);
+            DestroyPlus();
         }
     }
+
+    public void DestroyPlus()
+    {
+        parent.isTileSpanwed = false;
+        Destroy(this.gameObject, 0.1f);
+
+    }
 }
+

@@ -6,8 +6,8 @@ public class StaticDamage : Enemy
     public float tileSpeed;
     public bool isWaitingToHit;
     public bool isTileSpanwed;
+    public GameObject buffer;
     public GameObject target;
-    public GameObject hitBox;
     private float timer = 0f;
 
     void Update()
@@ -44,7 +44,9 @@ public class StaticDamage : Enemy
             Angle *= -1f;
         }
         ArrowClone = (Rigidbody2D)Instantiate(projectTile, transform.position, Quaternion.Euler(0f, 0f, Angle));
+        ArrowClone.transform.SetParent(buffer.transform);
         ArrowClone.gameObject.GetComponent<EnemyProjectTile>().parent = this;
-        ArrowClone.AddForce(way.normalized * 5f, ForceMode2D.Impulse);
+        ArrowClone.gameObject.GetComponent<EnemyProjectTile>().target = target;
+        ArrowClone.AddForce(way.normalized * tileSpeed, ForceMode2D.Impulse);
     }
 }

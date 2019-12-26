@@ -6,15 +6,12 @@ public class BarbarianAgent : Agent
 {
     [Header("Physics values")]
     Rigidbody2D rb;
-    public float speed; 
+    public float speed;
 
     [Header("Area values")]
+    public GameObject buffer;
     public Transform spawn;
-    public Transform target;
-
-    [Header("Score variables")]
-    public TextMeshProUGUI scoreText;
-    private float score = 0f;
+    public float dangerZone;
 
     void Start()
     {
@@ -23,40 +20,49 @@ public class BarbarianAgent : Agent
 
     public override void AgentReset()
     {
-        transform.position = spawn.position;
+        transform.localPosition = new Vector3(spawn.localPosition.x + Random.Range(-2f, 2f), spawn.localPosition.y + Random.Range(-2f, 2f), 0f);
         rb.velocity = new Vector2(0f, 0f);
-        target.position = new Vector3(Random.Range(0, 4), Random.Range(0, 4), 0f);
+        foreach (Transform item in buffer.transform)
+        {
+            if (item.gameObject.GetComponent<EnemyProjectTile>())
+            {
+                item.gameObject.GetComponent<EnemyProjectTile>().DestroyPlus();
+            }
+        }
     }
 
     public override void CollectObservations()
     {
-        AddVectorObs(transform.position);
-        AddVectorObs(target.position);
+        AddVectorObs(transform.localPosition);
         AddVectorObs(rb.velocity.x);
         AddVectorObs(rb.velocity.y);
+        foreach (Transform item in buffer.transform)
+        {
+            if (Vector2.Distance(transform.localPosition, item.localPosition) <= dangerZone)
+            {
+                AddVectorObs(item.position);
+                AddVectorObs(item.gameObject.GetComponent<Rigidbody2D>().velocity.x);
+                AddVectorObs(item.gameObject.GetComponent<Rigidbody2D>().velocity.y);
+            }
+        }
+    }
+    public void Punish(float value)
+    {
+        SetReward(-value);
+        Done();
+    }
+
+    public void Reward(float value)
+    {
+        SetReward(value);
     }
 
     public override void AgentAction(float[] vectorAction)
     {
-        scoreText.text = "" + score;
         Vector2 controlSignal = Vector3.zero;
         controlSignal.x = vectorAction[0];
         controlSignal.y = vectorAction[1];
         rb.AddForce(controlSignal * speed);
-        // Rewards
-        float distanceToTarget = Vector3.Distance(this.transform.position,
-                                                  target.position);
-        // Reached target
-        if (distanceToTarget < 0.42f)
-        {
-            SetReward(1.0f);
-            score += 1.0f;
-            Done();
-        }
-        if (distanceToTarget > 5)
-        {
-            Done();
-        }
     }
 
     public override float[] Heuristic()
