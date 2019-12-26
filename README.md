@@ -1,2 +1,1 @@
-# ml-AI
-Machine learning AI development
+# Machine learning AI
