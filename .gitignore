@@ -2,6 +2,8 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
+*.dll
+*.asset
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -10,8 +12,17 @@
 /[Ll]ogs/
 /[Mm]emoryCaptures/
 
-# Asset meta data should only be ignored when the corresponding asset is also ignored
-!/[Aa]ssets/**/*.meta
+/[Aa]ssets/**/*.meta
+#Temp ignore sources
+/[Aa]ssets/**/*.anim
+/[Aa]ssets/**/*.png
+/[Aa]ssets/**/*.ttf
+/[Aa]ssets/**/*.controller
+/[Aa]ssets/**/*.prefab
+/[Aa]ssets/**/*.shader
+/[Aa]ssets/**/*.mat
+/[Aa]ssets/**/*.txt
+/[Aa]ssets/**/*.gif
 
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
