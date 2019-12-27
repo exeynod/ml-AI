@@ -50,7 +50,7 @@ public class EnemyProjectTile : MonoBehaviour
     public void DestroyPlus()
     {
         parent.isTileSpanwed = false;
-        Destroy(this.gameObject, 0.1f);
+        Destroy(this.gameObject);
 
     }
 }

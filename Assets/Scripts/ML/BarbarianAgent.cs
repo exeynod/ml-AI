@@ -4,18 +4,30 @@ using TMPro;
 
 public class BarbarianAgent : Agent
 {
-    [Header("Physics values")]
-    Rigidbody2D rb;
-    public float speed;
-
     [Header("Area values")]
     public GameObject buffer;
     public Transform spawn;
     public float dangerZone;
 
+    [Header("This character parametrs")]
+    private Enemy thisChar;
+    private Rigidbody2D rb;
+    public Transform oponent;
+
+    [Header("UI")]
+    public TextMeshProUGUI scoreUI;
+    private int score = 0;
+
     void Start()
     {
+        thisChar = GetComponent<Enemy>();
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    public void IncScore()
+    {
+        ++score;
+        scoreUI.text = "" + score;
     }
 
     public override void AgentReset()
@@ -36,6 +48,7 @@ public class BarbarianAgent : Agent
         AddVectorObs(transform.localPosition);
         AddVectorObs(rb.velocity.x);
         AddVectorObs(rb.velocity.y);
+        AddVectorObs(oponent.position);
         foreach (Transform item in buffer.transform)
         {
             if (Vector2.Distance(transform.localPosition, item.localPosition) <= dangerZone)
@@ -57,19 +70,65 @@ public class BarbarianAgent : Agent
         SetReward(value);
     }
 
+    void AgentAct(float[] act)
+    {
+        Vector2 moveDir = Vector2.zero;
+        switch(act[0])
+        {
+            case 1:
+                moveDir.x = 1;
+                break;
+            case 2:
+                moveDir.x = -1;
+                break;
+        }
+        switch(act[1])
+        {
+            case 1:
+                moveDir.y = 1;
+                break;
+            case 2:
+                moveDir.y = -1;
+                break;
+        }
+        rb.AddForce(moveDir * thisChar.MoveSpeed);
+        if (act[2] == 1)
+        {
+            thisChar.Attack();
+            // SetReward(-0.05f);
+        }
+    }
+
     public override void AgentAction(float[] vectorAction)
     {
-        Vector2 controlSignal = Vector3.zero;
-        controlSignal.x = vectorAction[0];
-        controlSignal.y = vectorAction[1];
-        rb.AddForce(controlSignal * speed);
+        AgentAct(vectorAction);
+        if (Vector3.Distance(transform.position, oponent.position) < 2f)
+        {
+            SetReward(0.5f);
+        }
     }
 
     public override float[] Heuristic()
     {
-        var action = new float[2];
-        action[1] = Input.GetAxisRaw("Vertical");
-        action[0] = Input.GetAxisRaw("Horizontal");
+        var action = new float[3];
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            action[0] = 1;
+        } else if (Input.GetKeyDown(KeyCode.S)) {
+            action[0] = 2;
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            action[1] = 1;
+        } else if (Input.GetKeyDown(KeyCode.D)) {
+            action[1] = 2;
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            action[2] = 1;
+        } else {
+            action[2] = 0;
+        }
         return action;
     }
 }
