@@ -1,6 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 public enum EnemyState
 {
     walk,
@@ -27,7 +27,7 @@ public class Enemy : MonoBehaviour
     [Header("Health variables")]
     public FloatValue MaxHealth;
     public float deffense;
-    [HideInInspector] public float CurrentHealth;
+    [HideInInspector] public float currentHealth;
     [HideInInspector] public float TimeKd;
 
     [Header("Items")]
@@ -47,7 +47,7 @@ public class Enemy : MonoBehaviour
         Anim = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
         Body = GetComponent<Rigidbody2D>();
-        CurrentHealth = MaxHealth.InitialValue;
+        currentHealth = MaxHealth.InitialValue;
         CurrentState = EnemyState.walk;
         TimeKd = AttackKD;
         Physics2D.queriesStartInColliders = false;
@@ -59,7 +59,7 @@ public class Enemy : MonoBehaviour
 
     public bool IsDead()
     {
-        return CurrentHealth <= 0;
+        return currentHealth <= 0;
     }
 
     public void Attack()
@@ -83,7 +83,7 @@ public class Enemy : MonoBehaviour
     {
         if (!IsDead())
         {
-            CurrentHealth -= Damage * (1 - deffense);
+            currentHealth -= Damage * (1 - deffense);
             if (!IsDead())
             {
                 CurrentState = EnemyState.stagger;
@@ -155,6 +155,7 @@ public class Enemy : MonoBehaviour
         Anim.SetBool("IsDead", true);
         yield return new WaitForSeconds(DeadAnimTime);
         Anim.enabled = false;
+        Anim.SetBool("IsDead", false);
         CurrentState = EnemyState.die;
     }
 

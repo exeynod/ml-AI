@@ -12,7 +12,7 @@ public class SwordAttack : MonoBehaviour
             if (collision.gameObject != initiator)
             {
                 initiator.GetComponent<BarbarianAgent>().IncScore();
-                initiator.GetComponent<BarbarianAgent>().SetReward(100f);
+                initiator.GetComponent<BarbarianAgent>().SetReward(10f);
                 initiator.GetComponent<BarbarianAgent>().Done();
             }
         }

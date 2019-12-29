@@ -1,18 +1,31 @@
 ﻿using MLAgents;
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class BarbarianAgent : Agent
 {
+    [Header("Reward vaues")]
+    public float dodgeReward;
+    public float oncommingReward;
+    public float killReward;
+
+    [Header("Punishment values")]
+    public float takingDamagePunishment;
+    public float diePunishment;
+
     [Header("Area values")]
-    public GameObject buffer;
-    public Transform spawn;
-    public float dangerZone;
+    public GameObject projectTilesSpawned;
+    public Transform spawn; // spawn point position
+    public float dangerZone; // safe distance
 
     [Header("This character parametrs")]
-    private Enemy thisChar;
-    private Rigidbody2D rb;
-    public Transform oponent;
+    private float currentHealth;
+    private Enemy thisCharacter; 
+    // Should be removed
+    public Transform oponent; // current position of Goblin
+    // First oponent position to be saved and restored
+    private Vector3 oponentSpawn;
 
     [Header("UI")]
     public TextMeshProUGUI scoreUI;
@@ -20,8 +33,9 @@ public class BarbarianAgent : Agent
 
     void Start()
     {
-        thisChar = GetComponent<Enemy>();
-        rb = GetComponent<Rigidbody2D>();
+        thisCharacter = GetComponent<Enemy>();
+        currentHealth = thisCharacter.MaxHealth.InitialValue;
+        oponentSpawn = oponent.transform.localPosition;
     }
 
     public void IncScore()
@@ -30,11 +44,28 @@ public class BarbarianAgent : Agent
         scoreUI.text = "" + score;
     }
 
+    public void TakeDamage(float value)
+    {
+        currentHealth -= value;
+        if (currentHealth <= 0)
+        {
+            Punish(diePunishment);
+            Done();
+        }
+        else
+        {
+            StartCoroutine(thisCharacter.GetDamage());
+            Punish(takingDamagePunishment);
+        }
+    }
+
     public override void AgentReset()
     {
-        transform.localPosition = new Vector3(spawn.localPosition.x + Random.Range(-2f, 2f), spawn.localPosition.y + Random.Range(-2f, 2f), 0f);
-        rb.velocity = new Vector2(0f, 0f);
-        foreach (Transform item in buffer.transform)
+        currentHealth = thisCharacter.MaxHealth.InitialValue;
+        oponent.transform.localPosition = new Vector3(oponentSpawn.x + Random.Range(-1f, 1f), oponentSpawn.y + Random.Range(-1f, 1f), 0f);
+        transform.localPosition = new Vector3(spawn.localPosition.x + Random.Range(-1f, 1f), spawn.localPosition.y + Random.Range(-1f, 1f), 0f);
+        thisCharacter.Body.velocity = new Vector2(0f, 0f);
+        foreach (Transform item in projectTilesSpawned.transform)
         {
             if (item.gameObject.GetComponent<EnemyProjectTile>())
             {
@@ -46,23 +77,25 @@ public class BarbarianAgent : Agent
     public override void CollectObservations()
     {
         AddVectorObs(transform.localPosition);
-        AddVectorObs(rb.velocity.x);
-        AddVectorObs(rb.velocity.y);
+        AddVectorObs(thisCharacter.Body.velocity.x);
+        AddVectorObs(thisCharacter.Body.velocity.y);
         AddVectorObs(oponent.position);
-        foreach (Transform item in buffer.transform)
+        AddVectorObs(currentHealth);
+        foreach (Transform item in projectTilesSpawned.transform)
         {
             if (Vector2.Distance(transform.localPosition, item.localPosition) <= dangerZone)
             {
                 AddVectorObs(item.position);
                 AddVectorObs(item.gameObject.GetComponent<Rigidbody2D>().velocity.x);
                 AddVectorObs(item.gameObject.GetComponent<Rigidbody2D>().velocity.y);
+                AddVectorObs(oponent.position - item.position);
             }
         }
     }
+
     public void Punish(float value)
     {
         SetReward(-value);
-        Done();
     }
 
     public void Reward(float value)
@@ -91,11 +124,18 @@ public class BarbarianAgent : Agent
                 moveDir.y = -1;
                 break;
         }
-        rb.AddForce(moveDir * thisChar.MoveSpeed);
+        thisCharacter.Body.AddForce(moveDir * thisCharacter.MoveSpeed);
+        if ((thisCharacter.Body.velocity.x + thisCharacter.Body.velocity.x) >= 0)
+        {
+            thisCharacter.FlipSprite(false);
+        }
+        else
+        {
+            thisCharacter.FlipSprite(true);
+        }
         if (act[2] == 1)
         {
-            thisChar.Attack();
-            // SetReward(-0.05f);
+            thisCharacter.Attack();
         }
     }
 
@@ -104,7 +144,7 @@ public class BarbarianAgent : Agent
         AgentAct(vectorAction);
         if (Vector3.Distance(transform.position, oponent.position) < 2f)
         {
-            SetReward(0.5f);
+            SetReward(oncommingReward);
         }
     }
 
@@ -114,19 +154,25 @@ public class BarbarianAgent : Agent
         if (Input.GetKeyDown(KeyCode.W))
         {
             action[0] = 1;
-        } else if (Input.GetKeyDown(KeyCode.S)) {
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
             action[0] = 2;
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
             action[1] = 1;
-        } else if (Input.GetKeyDown(KeyCode.D)) {
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
             action[1] = 2;
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
             action[2] = 1;
-        } else {
+        }
+        else
+        {
             action[2] = 0;
         }
         return action;

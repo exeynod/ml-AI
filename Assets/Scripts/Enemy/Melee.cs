@@ -47,7 +47,7 @@ public class Melee : Enemy
     {
         if (!IsDead())
         {
-            CurrentHealth -= Damage * (1 - deffense);
+            currentHealth -= Damage * (1 - deffense);
             if (!IsDead())
             {
                 ChaseRadius = 15f; // After getting Damage melee will chase
