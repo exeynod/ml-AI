@@ -8,7 +8,9 @@ public class KickOut : MonoBehaviour
         {
             if (collision.gameObject.GetComponent<BarbarianAgent>())
             {
-                collision.gameObject.GetComponent<BarbarianAgent>().Punish(0.2f);
+                collision.gameObject.GetComponent<BarbarianAgent>().Punish(
+                    collision.gameObject.GetComponent<BarbarianAgent>().onExitZonePunishment
+                    );
             }
         }
     }
