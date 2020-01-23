@@ -181,4 +181,13 @@ public class Enemy : MonoBehaviour
             FlipSprite(false);
         }
     }
+
+    public void ResetAnim()
+    {
+        CurrentState = EnemyState.walk;
+        Anim.enabled = true;
+        Anim.SetBool("IsWalking", false);
+        Anim.SetBool("IsDead", false);
+        Anim.SetBool("IsAttacking", false);
+    }
 }
