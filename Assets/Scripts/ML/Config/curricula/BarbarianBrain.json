@@ -1,0 +1,11 @@
+{
+  "measure" : "reward",
+  "thresholds" : [6.0, 7.5, 8.0, 8.5, 9.0],
+  "min_lesson_length" : 100,
+  "signal_smoothing" : true,
+  "parameters" : 
+  {
+    "random_agent_spawn": [0.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+    "arrow_speed": [3.0, 3.0, 4.0, 5.0, 6.0, 7.0]
+  }
+}

@@ -15,6 +15,8 @@ public class BarbarianAgent : Agent
 
     [Header("ML options")]
     public Transform oponent;
+    private Vector3 oponentSpawn;
+    public BattleAcadeny academy;
 
     [Header("Character values")]
     [HideInInspector] public Enemy thisCharacter;
@@ -24,17 +26,18 @@ public class BarbarianAgent : Agent
     public TextMeshProUGUI textField;
 
     [Header("Rewards")]
-    public float killReward = 15f;
-    public float onAwoidTileReward = 1f;
-    public float onCommingCloserReward = 1f;
+    [HideInInspector] public float killReward = 25f;
+    [HideInInspector] public float onCommingCloserReward = 2f;
 
     [Header("Punishments")]
-    public float diePunishment = 10f;
+    [HideInInspector] public float diePunishment = 10f;
 
+    private float startOponentDis;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         thisCharacter = GetComponent<Enemy>();
+        oponentSpawn = oponent.localPosition;
     }
 
     public void KillEnemy()
@@ -45,12 +48,25 @@ public class BarbarianAgent : Agent
         Done();
     }
 
+    private float CountDisToOponent()
+    {
+        return Vector3.Distance(transform.localPosition, oponent.localPosition);
+    }
+
     public override void AgentReset()
     {
         thisCharacter.ResetAnim();
-        // transform.localPosition = spawn.localPosition;
-        // transform.localPosition = new Vector3(spawn.localPosition.x + Random.Range(-1, 1),
-            // spawn.localPosition.y + Random.Range(-1, 1), spawn.position.z);
+        if (academy.FloatProperties.GetPropertyWithDefault("random_agent_spawn", 1) == 0)
+        {
+            transform.localPosition = spawn.localPosition;
+        }
+        else
+        {
+            transform.localPosition = new Vector3(spawn.localPosition.x + Random.Range(-1, 1),
+                spawn.localPosition.y + Random.Range(-1, 1), spawn.position.z);
+        }
+        oponent.localPosition = new Vector3(oponentSpawn.x + Random.Range(-1, 1),
+            oponentSpawn.y + Random.Range(-1, 1), oponentSpawn.z);
         rb.velocity = new Vector2(0f, 0f);
         foreach (Transform item in buffer.transform)
         {
@@ -59,6 +75,7 @@ public class BarbarianAgent : Agent
                 item.gameObject.GetComponent<EnemyProjectTile>().DestroyPlus();
             }
         }
+        startOponentDis = CountDisToOponent();
     }
 
     public override void CollectObservations()
@@ -67,26 +84,9 @@ public class BarbarianAgent : Agent
         AddVectorObs(rb.velocity.x);
         AddVectorObs(rb.velocity.y);
         AddVectorObs(oponent.position);
-        bool isSpawned = false;
-        foreach (Transform item in buffer.transform)
-        {
-            if (Vector2.Distance(transform.localPosition, item.localPosition) <= dangerZone)
-            {
-                AddVectorObs(item.position);
-                AddVectorObs(item.position - oponent.position);
-                AddVectorObs(item.gameObject.GetComponent<Rigidbody2D>().velocity.x);
-                AddVectorObs(item.gameObject.GetComponent<Rigidbody2D>().velocity.y);
-                isSpawned = true;
-                break;
-            }
-        }
-        if (!isSpawned)
-        {
-            AddVectorObs(new Vector3(0f, 0f, 0f));
-            AddVectorObs(new Vector3(0f, 0f, 0f));
-            AddVectorObs(0f);
-            AddVectorObs(0f);
-        }
+        AddVectorObs(CountDisToOponent());
+        AddVectorObs(oponent.gameObject.GetComponent<StaticDamage>().timer);
+        AddVectorObs(oponent.gameObject.GetComponent<StaticDamage>().TimeKd - oponent.gameObject.GetComponent<StaticDamage>().timer);
     }
     public void Punish(float value)
     {
@@ -127,7 +127,7 @@ public class BarbarianAgent : Agent
         Move(vectorAction);
         if (vectorAction[2] == 1)
             thisCharacter.Attack();
-        if (Vector3.Distance(transform.position, oponent.position) <= 2f)
+        if (CountDisToOponent() <= 1.05f)
         {
             Reward(onCommingCloserReward);
         }

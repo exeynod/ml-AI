@@ -8,7 +8,8 @@ public class StaticDamage : Enemy
     public bool isTileSpanwed;
     public GameObject buffer;
     public GameObject target;
-    private float timer = 0f;
+    public BattleAcadeny academy;
+    [HideInInspector] public float timer = 0f;
 
     void Update()
     {
@@ -47,6 +48,6 @@ public class StaticDamage : Enemy
         ArrowClone.transform.SetParent(buffer.transform);
         ArrowClone.gameObject.GetComponent<EnemyProjectTile>().parent = this;
         ArrowClone.gameObject.GetComponent<EnemyProjectTile>().target = target;
-        ArrowClone.AddForce(way.normalized * tileSpeed, ForceMode2D.Impulse);
+        ArrowClone.AddForce(way.normalized * academy.FloatProperties.GetPropertyWithDefault("arrow_speed", 7f), ForceMode2D.Impulse);
     }
 }
