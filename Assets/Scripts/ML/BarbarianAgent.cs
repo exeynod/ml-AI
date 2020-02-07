@@ -28,11 +28,11 @@ public class BarbarianAgent : Agent
     [Header("Rewards")]
     [HideInInspector] public float killReward = 25f;
     [HideInInspector] public float onCommingCloserReward = 2f;
+    private bool wasDistanceRewardGiven = false;
 
     [Header("Punishments")]
     [HideInInspector] public float diePunishment = 10f;
 
-    private float startOponentDis;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -55,6 +55,7 @@ public class BarbarianAgent : Agent
 
     public override void AgentReset()
     {
+        wasDistanceRewardGiven = false;
         thisCharacter.ResetAnim();
         if (academy.FloatProperties.GetPropertyWithDefault("random_agent_spawn", 1) == 0)
         {
@@ -75,7 +76,6 @@ public class BarbarianAgent : Agent
                 item.gameObject.GetComponent<EnemyProjectTile>().DestroyPlus();
             }
         }
-        startOponentDis = CountDisToOponent();
     }
 
     public override void CollectObservations()
@@ -127,7 +127,7 @@ public class BarbarianAgent : Agent
         Move(vectorAction);
         if (vectorAction[2] == 1)
             thisCharacter.Attack();
-        if (CountDisToOponent() <= 1.05f)
+        if (CountDisToOponent() <= 1.05f && !wasDistanceRewardGiven)
         {
             Reward(onCommingCloserReward);
         }

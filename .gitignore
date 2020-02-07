@@ -4,6 +4,7 @@
 #
 *.dll
 *.asset
+*.index
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -18,7 +19,6 @@
 /[Aa]ssets/**/*.png
 /[Aa]ssets/**/*.ttf
 /[Aa]ssets/**/*.controller
-/[Aa]ssets/**/*.prefab
 /[Aa]ssets/**/*.shader
 /[Aa]ssets/**/*.mat
 /[Aa]ssets/**/*.txt
@@ -66,3 +66,4 @@ sysinfo.txt
 *.unitypackage
 crashlytics-build.properties
 
+*.meta

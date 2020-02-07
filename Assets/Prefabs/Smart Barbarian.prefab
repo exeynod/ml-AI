@@ -278,7 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   record: 0
-  demonstrationName: BarbarianDemo2
+  demonstrationName: Barbarian
 --- !u!114 &6202871925237044178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,8 +296,8 @@ MonoBehaviour:
   - Obstacle
   - Enemy
   - Damage
-  raysPerDirection: 6
-  maxRayDegrees: 90
+  raysPerDirection: 24
+  maxRayDegrees: 180
   sphereCastRadius: 0.1
   rayLength: 20
   rayLayerMask:
